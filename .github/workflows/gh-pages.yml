@@ -12,11 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
         
-    - name: Copy files to www directory
-      run: |
-        cp www/index.html .
-        mkdir www
-        mv index.html www/
+    - name: sample running of code
+      run: echo "Seeing if this works"
     
     - name: Build and deploy
       id: deploy
