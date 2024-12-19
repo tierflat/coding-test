@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('key_values', function (Blueprint $table) {
+        Schema::create('objects', function (Blueprint $table) {
             $table->id();
             $table->string('key');
-            $table->json('value');
+            $table->longText('value'); // BLOB or TEXT https://dev.mysql.com/doc/refman/8.4/en/blob.html
+            $table->boolean('is_binary')->default(false);
+            $table->integer('timestamp');
             $table->timestamps();
+
+            $table->index(['key', 'timestamp']);
         });
     }
 
@@ -24,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('key_values');
+        Schema::dropIfExists('objects');
     }
 };
