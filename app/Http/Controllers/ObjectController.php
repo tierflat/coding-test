@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Models\Objects;
 
 class ObjectController extends Controller
@@ -24,8 +25,26 @@ class ObjectController extends Controller
     }
 
     public function store(Request $request) {
-        $validateData = $request->validate(['key' => 'required|string|max:255']);
-        
+        try {
+            if (!$request->isJson()  || empty($request->json()->all())) {
+                return response()->json([
+                    'message' => 'Invalid JSON format'
+                ], 400);
+                
+            } else {
+                return response()->json([
+                    "message" => "Thank you!"
+                ], 200);
+
+            }
+            // $validateData = $request->validate(['key' => 'required|string|max:255']);
+        } catch(\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    
     }
 
     public function show($id) {
