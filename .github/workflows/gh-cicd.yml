@@ -64,12 +64,13 @@ jobs:
             cd /var/www/html
             git pull origin main
             composer install --no-interaction --prefer-dist --optimize-autoloader
-            echo "DB_CONNECTION=mysql" >> .env
-            echo "DB_HOST=${{ env.DB_HOST }}" >> .env
-            echo "DB_PORT=${{ env.DB_PORT }}" >> .env
-            echo "DB_DATABASE=${{ env.DB_DATABASE }}" >> .env
-            echo "DB_USERNAME=${{ env.DB_USERNAME }}" >> .env
-            echo "DB_PASSWORD=${{ env.DB_PASSWORD }}" >> .env
+            export DB_CONNECTION=mysql
+            export DB_HOST=${{ env.DB_HOST }}
+            export DB_PORT=${{ env.DB_PORT }}
+            export DB_DATABASE=${{ env.DB_DATABASE }}
+            export DB_USERNAME=${{ env.DB_USERNAME }}
+            export DB_PASSWORD=${{ env.DB_PASSWORD }}
+            export APP_DEBUG=false
             php artisan migrate --force
             php artisan config:cache
             php artisan route:cache
