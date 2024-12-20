@@ -3,13 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Model\Objects;
+use App\Models\Objects;
 
 class ObjectController extends Controller
 {
-    public function index() {
-        $objects = Objects::all();
-        return response()->json($objects);
+    public function get_all_records() {
+        try {
+            $objects = Objects::all();
+            return response()->json($objects);
+            // return response()->json([
+            //     "message" => "Thank you!"
+            // ], 200);
+
+        } catch(\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     public function store(Request $request) {
