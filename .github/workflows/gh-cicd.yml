@@ -63,6 +63,7 @@ jobs:
           script: |
             cd /var/www/html
             git pull origin main
+            composer update --no-interaction --no-progress --prefer-dist --optimize-autoloader --ignore-platform-reqs
             composer install --no-interaction --prefer-dist --optimize-autoloader
             export DB_CONNECTION=mysql
             export DB_HOST=${{ env.DB_HOST }}
@@ -72,6 +73,7 @@ jobs:
             export DB_PASSWORD=${{ env.DB_PASSWORD }}
             export APP_DEBUG=false
             php artisan migrate --force
+            php artisan key:generate
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
