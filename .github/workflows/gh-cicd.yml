@@ -59,6 +59,9 @@ jobs:
           APP_ENV: local
         run: php artisan config:cache
 
+      - name: Setup database tables
+        run: php artisan migrate --force
+
       - name: Run Tests
         run: php artisan test
 
