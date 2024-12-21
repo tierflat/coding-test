@@ -113,10 +113,8 @@ class ObjectController extends Controller
                     ->header('Content-Type', 'application/octet-stream')
                     ->header('Content-Disposition', 'attachment; filename="' . $key . '"');
             }
+            return response($object->value);
 
-            return response()->json([
-                $object->value,
-            ], Response::HTTP_OK);
         } catch(\Exception $e) {
             return response()->json([
                 'success' => false,
