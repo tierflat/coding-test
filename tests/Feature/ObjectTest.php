@@ -27,14 +27,16 @@ class ObjectTest extends TestCase
 
     public function test_get_value_with_invalid_timestamp()
     {
-        Objects::create([
+        $object = Objects::create([
             'key' => 'test_key',
-            'value' => json_encode('test value'),
+            'value' => 'test value',
             'timestamp' => time()
         ]);
 
         $response = $this->getJson('/api/object/test_key?timestamp=invalid');
         $response->assertStatus(400);
+
+        $object->delete();
     }
 
     public function test_store_invalid_object()
@@ -49,4 +51,17 @@ class ObjectTest extends TestCase
         $response->assertStatus(400)
             ->assertJson(['message' => 'Invalid JSON format']);
     }
+
+    public function test_store_valid_key()
+    {
+        $response = $this->postJson('/api/object', ['mykey' => 'sample value']);
+        $response->assertStatus(201);
+    }
+
+    public function test_get_valid_key()
+    {
+        $response = $this->get('/api/object/mykey');
+        $response->assertStatus(200);
+    }
+
 }
