@@ -9,6 +9,9 @@ use JsonException;
 
 class ObjectController extends Controller
 {
+    /**
+     * Retrieves all records from the database.
+     */
     public function get_all_records() {
         try {
             $objects = Objects::all();
@@ -18,10 +21,15 @@ class ObjectController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
-            ], Responnse::HTTP_INTERNAL_SERVER_ERROR);
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
+    /**
+     * Stores a new object in the database.
+     * 
+     * @param Request $request
+     */
     public function store(Request $request) {
         try {
             $data = $request->json()->all();
@@ -64,17 +72,21 @@ class ObjectController extends Controller
                 }
             }
 
-
-
         } catch(\Exception $e) {
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
-            ], Responnse::HTTP_INTERNAL_SERVER_ERROR);
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     
     }
 
+    /**
+     * Retrieves the latest value from the database based on the given $key.
+     * If a timestamp is provided, it retrieves the value before the given timestamp.
+     * 
+     * @param string $key
+     */
     public function show($key) {
         try {
             // check if timestamp is passed
@@ -109,11 +121,15 @@ class ObjectController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
-            ], Responnse::HTTP_INTERNAL_SERVER_ERROR);
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
     }
 
+    /**
+     * Checks if the given value is binary or a blob.
+     * @param mixed $value
+     */
     private function isBinary($value) {
         if(!is_string($value)) {
             return !mb_check_encoding($value, 'UTF-8') ||
