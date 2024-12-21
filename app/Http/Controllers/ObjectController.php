@@ -60,23 +60,29 @@ class ObjectController extends Controller
                         ], Response::HTTP_BAD_REQUEST);
                     }
 
-                    // TODO: check for blob encoding
-                    //      encode $value blob
+                    $isBinary = $this->isBinary($value);
 
+                    /*
+                    Assuming that we're storing small blob data, we'll store it as base64 encoded.
+                    In case we're getting very large blob like videos, we should save the blob as a file and 
+                    store the path in database
+                    */ 
                     Objects::create([
                         'key' => $key,
-                        'value' => $value,
-                        'is_binary' => false,
+                        'value' => $isBinary ? base64_encode($value) : $value,
+                        'is_binary' => $isBinary,
                         'timestamp' => time()
                     ]);
+                    return response()->json(['message' => 'Stored successfully'], Response::HTTP_CREATED);
+
                 } catch (JsonException $e) {
                     return response()->json([
-                        'message' => 'Invalid data type for key: ' . $key
+                        'success' => false,
+                        'error' => $e->getMessage()
                     ], Response::HTTP_BAD_REQUEST);
                 }
             }
 
-            return response()->json(['message' => 'Stored successfully'], Response::HTTP_CREATED);
 
 
         } catch(\Exception $e) {
@@ -108,6 +114,13 @@ class ObjectController extends Controller
                     'message' => 'Object not found'
                 ], Response::HTTP_NOT_FOUND);
             }
+            if($object->is_binary) {
+                $object->value = base64_decode($object->value);
+                return response($object->value)
+                    ->header('Content-Type', 'application/octet-stream')
+                    ->header('Content-Disposition', 'attachment; filename="' . $key . '"');
+            }
+
             return response()->json([
                 $object->value,
             ], Response::HTTP_OK);
@@ -118,6 +131,15 @@ class ObjectController extends Controller
             ], 500);
         }
 
+    }
+
+    private function isBinary($value) {
+        if(!is_string($value)) {
+            return !mb_check_encoding($value, 'UTF-8') ||
+            preg_match('/[^\x20-\x7E\t\r\n]/', $value) ||
+            substr($value, 0, 2) === "\x1f\x8b";
+        }
+        return false;
     }
 
     
