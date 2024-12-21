@@ -34,7 +34,7 @@ class ObjectTest extends TestCase
         ]);
 
         $response = $this->getJson('/api/object/test_key?timestamp=invalid');
-        $response->assertStatus(404);
+        $response->assertStatus(400);
     }
 
     public function test_store_invalid_object()
