@@ -13,44 +13,25 @@ class ObjectController extends Controller
         try {
             $objects = Objects::all();
             return response()->json($objects);
-            // return response()->json([
-            //     "message" => "Thank you!"
-            // ], 200);
 
         } catch(\Exception $e) {
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
-            ], 500);
+            ], Responnse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
     public function store(Request $request) {
         try {
-            // $arr['mykey'] = 'this is mmy val';
-            // list($key, $value) = $arr;
             $data = $request->json()->all();
-            // foreach ($data as $key => $value) {
-            //     var_dump($key . ':' . $value);
-            // }
-            // $key = key($data);
-            // var_dump($key);
-            // var_dump($data[$key]);
-            // die('test');
     
             if (!$request->isJson()  || empty($data)) {
                 return response()->json([
                     'message' => 'Invalid JSON format'
                 ], Response::HTTP_BAD_REQUEST);
-                
-            // } else {
-            //     return response()->json([
-            //         "message" => "Thank you!"
-            //     ], 200);
-
             }
 
-            // taking all the json objects passed to the api. but we can also just take first element through $key = key($data);
             foreach ($data as $key => $value) {
                 try {        
                     // validate $key, as string and max 255 chars. We'll send 400 error for failure. Although it's possible we can skip through
@@ -89,7 +70,7 @@ class ObjectController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
-            ], 500);
+            ], Responnse::HTTP_INTERNAL_SERVER_ERROR);
         }
     
     }
@@ -128,7 +109,7 @@ class ObjectController extends Controller
             return response()->json([
                 'success' => false,
                 'error' => $e->getMessage()
-            ], 500);
+            ], Responnse::HTTP_INTERNAL_SERVER_ERROR);
         }
 
     }
