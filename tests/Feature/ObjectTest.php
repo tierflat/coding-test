@@ -12,7 +12,7 @@ class ObjectTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function test_example(): void
+    public function test_get_all_records(): void
     {
         $response = $this->get('/api/object/get_all_records');
 
