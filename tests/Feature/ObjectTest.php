@@ -75,7 +75,7 @@ class ObjectTest extends TestCase
         $response = $this->get('/api/object/mykey-test-string?timestamp='.time());
         $response->assertStatus(200);
         $object = Objects::where('key', 'mykey-test-string')->first();
-        // $object->delete();
+        $object->delete();
     }
 
     public function test_store_valid_key_with_binary_value()
@@ -89,8 +89,8 @@ class ObjectTest extends TestCase
     {
         $response = $this->get('/api/object/mykey-test-binarydata.png');
         $response->assertStatus(200);
-        // $object = Objects::where(['key' => 'mykey-test-binarydata.png'])->first();
-        // $object->delete();
+        $object = Objects::where(['key' => 'mykey-test-binarydata.png'])->first();
+        $object->delete();
     }
 
     public function test_store_valid_key_with_nonbinary_value()
@@ -104,8 +104,8 @@ class ObjectTest extends TestCase
     {
         $response = $this->get('/api/object/mykey-test-nonbinary');
         $response->assertStatus(200);
-        // $object = Objects::where(['key' => 'mykey-test-nonbinary'])->first();
-        // $object->delete();
+        $object = Objects::where(['key' => 'mykey-test-nonbinary'])->first();
+        $object->delete();
 
     }
 
