@@ -49,8 +49,12 @@ class ObjectController extends Controller
                         ], Response::HTTP_BAD_REQUEST);
                     }
 
-                    $isBinary = $this->isBinary($value);
-
+                    $isBinary = false;
+                    if($this->isBase64($value)) {
+                        $decoded = base64_decode($value, true);
+                        $isBinary = $this->isBinary($decoded);
+                        if (!$isBinary) $value = $decoded;
+                    }
                     /*
                     Assuming that we're storing small blob data, we'll store it as base64 encoded.
                     In case we're getting very large blob like videos, we should save the blob as a file and 
@@ -58,7 +62,7 @@ class ObjectController extends Controller
                     */ 
                     Objects::create([
                         'key' => $key,
-                        'value' => $isBinary ? base64_encode($value) : $value,
+                        'value' => $value,
                         'is_binary' => $isBinary,
                         'timestamp' => time()
                     ]);
@@ -125,17 +129,42 @@ class ObjectController extends Controller
     }
 
     /**
-     * Checks if the given value is binary or a blob.
-     * @param mixed $value
+     * Checks if the given string is binary
+     * @param mixed $string
      */
-    private function isBinary($value) {
-        if(!is_string($value)) {
-            return !mb_check_encoding($value, 'UTF-8') ||
-            preg_match('/[^\x20-\x7E\t\r\n]/', $value) ||
-            substr($value, 0, 2) === "\x1f\x8b";
+    private function isBinary($string) {
+        $binarySignatures = [
+            "\x89\x50\x4E\x47" => 'PNG',
+            "\xFF\xD8\xFF"     => 'JPEG',
+            "\x47\x49\x46"     => 'GIF',
+            "\x50\x4B\x03\x04" => 'ZIP/DOCX/XLSX',
+            "\x25\x50\x44\x46" => 'PDF',
+        ];
+        
+        foreach ($binarySignatures as $signature => $format) {
+            if (strpos($string, $signature) === 0) {
+                return true;
+            }
         }
-        return false;
+        return !ctype_print($string);
     }
 
+    /**
+     * Checks if the given string is a base64 encoded.
+     * @param mixed $string
+     */
+    private function isBase64($string) {
+        $decoded = base64_decode($string, true);
+        if ($decoded === false) {
+            return false;
+        }
+
+        // this solves the bug causing false positive for binary data
+        if (base64_encode($decoded) !== $string) {
+            return false;
+        }
+
+        return true;
+    }
     
 }
