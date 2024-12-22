@@ -3,16 +3,6 @@ on:
   push:
     branches: [ main ]
 
-env:
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-  EC2_HOST: ${{ secrets.EC2_HOST }}
-  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-  DB_HOST: ${{ secrets.DB_HOST }}
-  DB_PORT: ${{ secrets.DB_PORT }}
-  DB_DATABASE: ${{ secrets.DB_DATABASE }}
-  DB_USERNAME: ${{ secrets.DB_USERNAME }}
-  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -86,11 +76,11 @@ jobs:
             composer update --no-interaction --no-progress --prefer-dist --optimize-autoloader --ignore-platform-reqs
             composer install --no-interaction --prefer-dist --optimize-autoloader
             export DB_CONNECTION=mysql
-            export DB_HOST=${{ env.DB_HOST }}
-            export DB_PORT=${{ env.DB_PORT }}
-            export DB_DATABASE=${{ env.DB_DATABASE }}
-            export DB_USERNAME=${{ env.DB_USERNAME }}
-            export DB_PASSWORD=${{ env.DB_PASSWORD }}
+            export DB_HOST=${{ secrets.DB_HOST }}
+            export DB_PORT=${{ secrets.DB_PORT }}
+            export DB_DATABASE=${{ secrets.DB_DATABASE }}
+            export DB_USERNAME=${{ secrets.DB_USERNAME }}
+            export DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             export APP_DEBUG=false
             php artisan migrate --force
             php artisan key:generate
