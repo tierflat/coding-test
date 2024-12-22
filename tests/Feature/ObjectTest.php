@@ -39,7 +39,7 @@ class ObjectTest extends TestCase
         $object->delete();
     }
 
-    public function test_store_invalid_object()
+    public function test_store_to_invalid_path()
     {
         $response = $this->post('/api/object', ['invalid object']);
         $response->assertStatus(400);
@@ -52,6 +52,12 @@ class ObjectTest extends TestCase
             ->assertJson(['message' => 'Invalid JSON format']);
     }
 
+    public function test_store_invalid_key()
+    {
+        $response = $this->postJson('/api/object', [str_repeat('a', 256) => 'sample value']);
+        $response->assertStatus(400);
+    }
+
     public function test_store_valid_key()
     {
         $response = $this->postJson('/api/object', ['mykey' => 'sample value']);
@@ -61,6 +67,12 @@ class ObjectTest extends TestCase
     public function test_get_valid_key()
     {
         $response = $this->get('/api/object/mykey');
+        $response->assertStatus(200);
+    }
+
+    public function test_get_valid_key_with_timestamp()
+    {
+        $response = $this->get('/api/object/mykey?timestamp='.time());
         $response->assertStatus(200);
     }
 

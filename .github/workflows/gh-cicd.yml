@@ -34,6 +34,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
+          coverage: pcov
 
       - name: Install Dependencies
         run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
@@ -62,8 +63,8 @@ jobs:
       - name: Setup database tables
         run: php artisan migrate --force
 
-      - name: Run Tests
-        run: php artisan test
+      - name: Run Tests with Coverage
+        run: php artisan test --coverage
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
