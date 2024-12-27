@@ -15,9 +15,7 @@ class EnsureTokenIsValid
      */
     public function handle(Request $request, Closure $next): Response
     {
-        die($request->input('token'));
         if ($request->input('token') !== 'my-secret-token') {
-            // return redirect('/');
             throw new ApiExceptionHandler("the token is invalid", Response::HTTP_BAD_REQUEST);
         }
  
