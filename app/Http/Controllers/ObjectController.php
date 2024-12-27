@@ -36,7 +36,8 @@ class ObjectController extends Controller
     
             if (!$request->isJson()  || empty($data)) {
                 return response()->json([
-                    'message' => 'Invalid JSON format'
+                    'success' => false,
+                    'error' => 'Invalid JSON format'
                 ], Response::HTTP_BAD_REQUEST);
             }
 
@@ -45,7 +46,8 @@ class ObjectController extends Controller
                     // validate $key, as string and max 255 chars. We'll send 400 error for failure. Although it's possible we can skip through
                     if (!is_string($key) || strlen($key) > 255) {
                         return response([
-                            'message' => 'Invalid request details.'
+                            'success' => false,
+                            'error' => 'Invalid request details.'
                         ], Response::HTTP_BAD_REQUEST);
                     }
 
@@ -66,7 +68,7 @@ class ObjectController extends Controller
                         'is_binary' => $isBinary,
                         'timestamp' => time()
                     ]);
-                    return response()->json(['message' => 'Stored successfully'], Response::HTTP_CREATED);
+                    return response()->json(['success' => true, 'message' => 'Stored successfully'], Response::HTTP_CREATED);
 
                 } catch (JsonException $e) {
                     return response()->json([
@@ -97,7 +99,8 @@ class ObjectController extends Controller
             $timestamp = request('timestamp');
             if($timestamp && !is_numeric($timestamp)) {
                 return response()->json([
-                    'message' => 'Invalid timestamp'
+                    'success' => false,
+                    'error' => 'Invalid timestamp'
                 ], Response::HTTP_BAD_REQUEST);
             }
 
@@ -108,7 +111,8 @@ class ObjectController extends Controller
             }
             if(!$object) {
                 return response()->json([
-                    'message' => 'Object not found'
+                    'success' => false,
+                    'error' => 'Object not found'
                 ], Response::HTTP_NOT_FOUND);
             }
             if($object->is_binary) {
