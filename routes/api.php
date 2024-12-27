@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\ObjectController;
+use App\Http\Middleware\EnsureTokenIsValid;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -11,7 +12,7 @@ Route::get('/user', function (Request $request) {
 
 
 Route::post('/object', [ObjectController::class, 'store']);
-Route::get('/object/get_all_records', [ObjectController::class, 'get_all_records']);
+Route::get('/object/get_all_records', [ObjectController::class, 'get_all_records'])->middleware(EnsureTokenIsValid::class);
 Route::get('/object/{key}', [ObjectController::class, 'show']);
 
 Route::any('{any}', function(){
@@ -20,3 +21,4 @@ Route::any('{any}', function(){
         'message'   => 'Page Not Found.',
     ], 404);
 })->where('any', '.*');
+                                                                                                                                    
