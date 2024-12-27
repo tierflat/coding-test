@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\ApiExceptionHandler;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\Objects;
-use JsonException;
 
 class ObjectController extends Controller
 {
@@ -14,14 +14,10 @@ class ObjectController extends Controller
      */
     public function get_all_records() {
         try {
-            $objects = Objects::all();
-            return response()->json($objects);
+            return response()->json(Objects::all());
 
-        } catch(\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch(\Throwable $e) {
+            throw new ApiExceptionHandler($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -35,54 +31,40 @@ class ObjectController extends Controller
             $data = $request->json()->all();
     
             if (!$request->isJson()  || empty($data)) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Invalid JSON format'
-                ], Response::HTTP_BAD_REQUEST);
+                throw new ApiExceptionHandler('Invalid JSON format', Response::HTTP_BAD_REQUEST);
             }
 
             foreach ($data as $key => $value) {
-                try {        
-                    // validate $key, as string and max 255 chars. We'll send 400 error for failure. Although it's possible we can skip through
-                    if (!is_string($key) || strlen($key) > 255) {
-                        return response([
-                            'success' => false,
-                            'error' => 'Invalid request details.'
-                        ], Response::HTTP_BAD_REQUEST);
-                    }
-
-                    $isBinary = false;
-                    if($this->isBase64($value)) {
-                        $decoded = base64_decode($value, true);
-                        $isBinary = $this->isBinary($decoded);
-                        if (!$isBinary) $value = $decoded;
-                    }
-                    /*
-                    Assuming that we're storing small blob data, we'll store it as base64 encoded.
-                    In case we're getting very large blob like videos, we should save the blob as a file and 
-                    store the path in database
-                    */ 
-                    Objects::create([
-                        'key' => $key,
-                        'value' => $value,
-                        'is_binary' => $isBinary,
-                        'timestamp' => time()
-                    ]);
-                    return response()->json(['success' => true, 'message' => 'Stored successfully'], Response::HTTP_CREATED);
-
-                } catch (JsonException $e) {
-                    return response()->json([
-                        'success' => false,
-                        'error' => $e->getMessage()
-                    ], Response::HTTP_BAD_REQUEST);
+                // validate $key, as string and max 255 chars. We'll send 400 error for failure. Although it's possible we can skip through
+                if (!is_string($key) || strlen($key) > 255) {
+                    throw new ApiExceptionHandler('Invalid request details.', Response::HTTP_BAD_REQUEST);
                 }
+
+                $isBinary = false;
+                if($this->isBase64($value)) {
+                    $decoded = base64_decode($value, true);
+                    $isBinary = $this->isBinary($decoded);
+                    if (!$isBinary) $value = $decoded;
+                }
+                /*
+                Assuming that we're storing small blob data, we'll store it as base64 encoded.
+                In case we're getting very large blob like videos, we should save the blob as a file and 
+                store the path in database
+                */ 
+                Objects::create([
+                    'key' => $key,
+                    'value' => $value,
+                    'is_binary' => $isBinary,
+                    'timestamp' => time()
+                ]);
+                return response()->json([
+                    'success' => true, 
+                    'message' => 'Stored successfully'
+                    ], Response::HTTP_CREATED);
             }
 
         } catch(\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            throw new ApiExceptionHandler($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     
     }
@@ -98,10 +80,7 @@ class ObjectController extends Controller
             // check if timestamp is passed
             $timestamp = request('timestamp');
             if($timestamp && !is_numeric($timestamp)) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Invalid timestamp'
-                ], Response::HTTP_BAD_REQUEST);
+                throw new ApiExceptionHandler('Invalid timestamp', Response::HTTP_BAD_REQUEST);
             }
 
             if($timestamp) {
@@ -110,10 +89,7 @@ class ObjectController extends Controller
                 $object = Objects::getLatestValue($key);
             }
             if(!$object) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Object not found'
-                ], Response::HTTP_NOT_FOUND);
+                throw new ApiExceptionHandler('Object not found', Response::HTTP_NOT_FOUND);
             }
             if($object->is_binary) {
                 $object->value = base64_decode($object->value);
@@ -124,10 +100,7 @@ class ObjectController extends Controller
             return response($object->value);
 
         } catch(\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'error' => $e->getMessage()
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+            throw new ApiExceptionHandler($e->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
     }
